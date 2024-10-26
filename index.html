@@ -171,12 +171,12 @@
         const resultMessage = document.getElementById('resultMessage');
 
         resultMessage.innerText = "";
-        questionText.innerHTML = `<span class="col-md-6">Dịch từ (${currentQuestion.direction}):</span> <span class="question col-md-6">${currentQuestion.question}</span>`;
+        questionText.innerHTML = `<span class="col-md-2">Dịch từ (${currentQuestion.direction}):</span> <span class="question col-md-9">${currentQuestion.question}</span>`;
         answersContainer.innerHTML = '';
 
         currentQuestion.answers.forEach(answer => {
             const button = document.createElement('button');
-            button.className = 'btn btn-primary mr-2 col-md-3 mb-2';
+            button.className = 'btn btn-primary col-md-2 mb-2 mr-2';
             button.innerText = answer;
             button.onclick = () => checkAnswer(answer);
             answersContainer.appendChild(button);
