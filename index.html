@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+          integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <style>
+        .container2 {
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            max-width: 600px;
+            height: 90vh;
+            padding: 10px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        textarea:focus {
+            border-color: #007bff; /* Xanh đậm */
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        textarea::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .question {
+            font-size: 35px;
+        }
+    </style>
+</head>
+<body>
+<div id="setupContainer" class="container container2">
+    <div class="row">
+        <div class="col-md-6"><h2>Thiết lập</h2></div>
+        <div class="col-md-6 pt-2 d-flex justify-content-md-end">
+            <button onclick="saveWords()" class="btn btn-outline-primary mr-2">Lưu</button>
+            <button onclick="showQuiz()" class="btn btn-outline-primary">Quiz</button>
+        </div>
+        <div class="col-12 d-flex justify-content-center mt-2">
+            <textarea id="englishWords" placeholder="vulnerabilities\nparticularly\nseveral" rows="10" cols="30" class="mr-5"></textarea>
+            <textarea id="vietnameseWords" placeholder="lỗ hổng\nđặc biệt\nmột số" rows="10" cols="30"></textarea>
+        </div>
+    </div>
+</div>
+
+<div id="quizContainer" class="container container2">
+    <div class="row">
+        <div class="col-12 mt-2">
+            <button onclick="showSetup()" class="btn btn-outline-primary">Quay lại Thiết lập danh sách</button>
+        </div>
+        <div class="col-12 mt-2">
+            <span id="questionText"></span>
+        </div>
+        <div class="col-12 mt-2">
+            <div id="answersContainer"></div>
+        </div>
+        <div class="col-12 mt-2">
+            <p id="resultMessage" style="color: green;"></p>
+        </div>
+        <div class="col-12 mt-2">
+            <button onclick="nextQuestion()" class="btn btn-outline-primary">Next</button>
+        </div>
+    </div>
+</div>
+<script>
+    let englishList = [];
+    let vietnameseList = [];
+    let currentQuestion = null;
+
+    // Chuyển hiển thị sang phần Quiz
+    function showQuiz() {
+        if (!loadWords()) return;
+        document.getElementById('setupContainer').classList.remove('visible');
+        document.getElementById('quizContainer').classList.add('visible');
+        nextQuestion();
+    }
+
+    // Chuyển hiển thị sang phần Thiết lập danh sách
+    function showSetup() {
+        document.getElementById('quizContainer').classList.remove('visible');
+        document.getElementById('setupContainer').classList.add('visible');
+    }
+
+    // Lưu danh sách từ vào localStorage
+    function saveWords() {
+        const englishInput = document.getElementById('englishWords').value;
+        const vietnameseInput = document.getElementById('vietnameseWords').value;
+
+        localStorage.setItem('englishWords', englishInput);
+        localStorage.setItem('vietnameseWords', vietnameseInput);
+
+        alert("Danh sách từ đã được lưu!");
+    }
+
+    // Tải danh sách từ từ localStorage
+    function loadWords() {
+        const savedEnglish = localStorage.getItem('englishWords');
+        const savedVietnamese = localStorage.getItem('vietnameseWords');
+
+        if (!savedEnglish || !savedVietnamese) {
+            alert("Chưa có danh sách từ. Vui lòng thiết lập danh sách từ trước.");
+            showSetup();
+            return false;
+        }
+
+        englishList = savedEnglish.split('\n').map(word => word.trim()).filter(word => word);
+        vietnameseList = savedVietnamese.split('\n').map(word => word.trim()).filter(word => word);
+
+        if (englishList.length !== vietnameseList.length) {
+            alert("Danh sách từ không khớp nhau. Vui lòng kiểm tra lại.");
+            showSetup();
+            return false;
+        }
+
+        return true;
+    }
+
+    function generateRandomQuestion() {
+        const isEnglishQuestion = Math.random() < 0.5;
+        const questionIndex = Math.floor(Math.random() * englishList.length);
+
+        if (isEnglishQuestion) {
+            return {
+                question: englishList[questionIndex],
+                correctAnswer: vietnameseList[questionIndex],
+                answers: generateAnswers(vietnameseList, vietnameseList[questionIndex]),
+                direction: "Anh -> Việt"
+            };
+        } else {
+            return {
+                question: vietnameseList[questionIndex],
+                correctAnswer: englishList[questionIndex],
+                answers: generateAnswers(englishList, englishList[questionIndex]),
+                direction: "Việt -> Anh"
+            };
+        }
+    }
+
+    function generateAnswers(list, correctAnswer) {
+        const answers = [correctAnswer];
+        while (answers.length < 4) {
+            const randomAnswer = list[Math.floor(Math.random() * list.length)];
+            if (!answers.includes(randomAnswer)) {
+                answers.push(randomAnswer);
+            }
+        }
+        return answers.sort(() => Math.random() - 0.5);
+    }
+
+    function displayQuestion() {
+        const questionText = document.getElementById('questionText');
+        const answersContainer = document.getElementById('answersContainer');
+        const resultMessage = document.getElementById('resultMessage');
+
+        resultMessage.innerText = "";
+        questionText.innerHTML = `Dịch từ (${currentQuestion.direction}): <span class="question">${currentQuestion.question}</span>`;
+        answersContainer.innerHTML = '';
+
+        currentQuestion.answers.forEach(answer => {
+            const button = document.createElement('button');
+            button.className = 'btn btn-primary mr-2';
+            button.innerText = answer;
+            button.onclick = () => checkAnswer(answer);
+            answersContainer.appendChild(button);
+        });
+    }
+
+    function checkAnswer(answer) {
+        const resultMessage = document.getElementById('resultMessage');
+        if (answer === currentQuestion.correctAnswer) {
+            resultMessage.innerText = "Chính xác!";
+        } else {
+            resultMessage.innerText = `Sai rồi! Đáp án đúng là: ${currentQuestion.correctAnswer}`;
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestion = generateRandomQuestion();
+        displayQuestion();
+    }
+
+    // Tải dữ liệu đã lưu khi mở trang và quyết định mở phần nào
+    window.onload = function () {
+        const savedEnglish = localStorage.getItem('englishWords');
+        const savedVietnamese = localStorage.getItem('vietnameseWords');
+
+        if (savedEnglish && savedVietnamese) {
+            englishList = savedEnglish.split('\n').map(word => word.trim()).filter(word => word);
+            vietnameseList = savedVietnamese.split('\n').map(word => word.trim()).filter(word => word);
+
+            if (englishList.length === vietnameseList.length) {
+                showQuiz();
+            } else {
+                alert("Danh sách từ không khớp nhau. Vui lòng kiểm tra lại.");
+                showSetup();
+            }
+        } else {
+            showSetup();
+        }
+    };
+</script>
+</body>
+</html>
