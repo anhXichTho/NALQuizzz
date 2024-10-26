@@ -93,6 +93,7 @@
 
     // Chuyển hiển thị sang phần Thiết lập danh sách
     function showSetup() {
+        populateWords(); // Điền lại giá trị từ localStorage vào các trường textarea
         document.getElementById('quizContainer').classList.remove('visible');
         document.getElementById('setupContainer').classList.add('visible');
     }
@@ -194,8 +195,16 @@
         currentQuestion = generateRandomQuestion();
         displayQuestion();
     }
+    // Điền danh sách từ vào textarea từ localStorage
+    function populateWords() {
+        const savedEnglish = localStorage.getItem('englishWords');
+        const savedVietnamese = localStorage.getItem('vietnameseWords');
 
-    // Tải dữ liệu đã lưu khi mở trang và quyết định mở phần nào
+        if (savedEnglish && savedVietnamese) {
+            document.getElementById('englishWords').value = savedEnglish;
+            document.getElementById('vietnameseWords').value = savedVietnamese;
+        }
+    }
     window.onload = function () {
         const savedEnglish = localStorage.getItem('englishWords');
         const savedVietnamese = localStorage.getItem('vietnameseWords');
