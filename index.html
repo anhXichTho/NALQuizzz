@@ -171,7 +171,7 @@
         const resultMessage = document.getElementById('resultMessage');
 
         resultMessage.innerText = "";
-        questionText.innerHTML = `<span class="col-md-2">Dịch từ (${currentQuestion.direction}):</span> <span class="question col-md-9">${currentQuestion.question}</span>`;
+        questionText.innerHTML = `<span class="question col-md-9">${currentQuestion.question}</span>`;
         answersContainer.innerHTML = '';
 
         currentQuestion.answers.forEach(answer => {
@@ -207,7 +207,7 @@
         }
     }
     function handleEnterKey(event) {
-        if (event.key === "n") {
+        if (event.key === "Alt") {
             event.preventDefault(); // Prevents any default behavior, if needed
             nextQuestion();
         }
