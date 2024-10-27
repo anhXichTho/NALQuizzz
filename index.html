@@ -176,7 +176,7 @@
 
         currentQuestion.answers.forEach(answer => {
             const button = document.createElement('button');
-            button.className = 'btn btn-primary col-md-2 mb-2 mr-2';
+            button.className = 'btn btn-outline-primary col-md-2 mr-2 mb-2';
             button.innerText = answer;
             button.onclick = () => checkAnswer(answer);
             answersContainer.appendChild(button);
@@ -206,6 +206,12 @@
             document.getElementById('vietnameseWords').value = savedVietnamese;
         }
     }
+    function handleEnterKey(event) {
+        if (event.key === "n") {
+            event.preventDefault(); // Prevents any default behavior, if needed
+            nextQuestion();
+        }
+    }
     window.onload = function () {
         const savedEnglish = localStorage.getItem('englishWords');
         const savedVietnamese = localStorage.getItem('vietnameseWords');
@@ -223,6 +229,7 @@
         } else {
             showSetup();
         }
+        document.addEventListener('keydown', handleEnterKey);
     };
 </script>
 </body>
